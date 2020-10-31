@@ -605,7 +605,8 @@ public class Modscript {
 								for(ClassNode cn : classNodes){
 									for(MethodNode mn : cn.methods){
 										if(isBytescript(mn) ||
-												mn.name.equals("<init>"))
+												mn.name.equals("<init>") ||
+												mn.name.equals("<clinit>"))
 											continue;
 										ArrayList<AbstractInsnNode> replace = new ArrayList<AbstractInsnNode>();
 										for(AbstractInsnNode insn : mn.instructions.toArray()){
@@ -689,7 +690,8 @@ public class Modscript {
 								for(ClassNode cn : classNodes){
 									for(MethodNode mn : cn.methods){
 										if(isBytescript(mn) ||
-												mn.name.equals("<init>"))
+												mn.name.equals("<init>") ||
+												mn.name.equals("<clinit>"))
 											continue;
 										ArrayList<AbstractInsnNode> replace = new ArrayList<AbstractInsnNode>();
 										for(AbstractInsnNode insn : mn.instructions.toArray()){
