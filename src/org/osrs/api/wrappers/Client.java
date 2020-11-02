@@ -469,7 +469,7 @@ public interface Client extends GameShell{
 	public int invokeGetTileHeight(int a, int b, int c, int d);
 	public void invokeFireScriptEvent(ScriptEvent a, int b);
 	public void invokeShutdownClient(int a);
-	public OutgoingPacket invokeCreateOutgoingPacket(OutgoingPacketMeta a, ISAACCipher b, int c);
+	public OutgoingPacket invokeCreateOutgoingPacket(OutgoingPacketMeta a, ISAACCipher b, byte c);
 	public DefinitionProperty invokeGetDefinitionProperty(int a, int b);
 	
 
@@ -505,5 +505,8 @@ public interface Client extends GameShell{
 	public boolean awtFocusCheck();
 	public boolean awtFocusCheck2();
 	public void ignoreNextOpenMenuRequest();
+	public void writeWalkTileMinimap(org.osrs.api.wrappers.ByteBuffer buffer, int tileX, int tileY, int relativeScreenX, int relativeScreenY);
+	public void setDestinationX(int destX);
+	public void setDestinationY(int destY);
 	
 }

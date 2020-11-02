@@ -15,5 +15,5 @@ public interface PacketContext{
 	public IncomingPacketMeta lastIncomingPacket();
 	public int idleReadPulses();
 	public IncomingPacketMeta thirdIncomingPacket();
-	public void sendPacket(OutgoingPacket packet, int a);
+	public void sendPacket(OutgoingPacket packet, byte a);
 }

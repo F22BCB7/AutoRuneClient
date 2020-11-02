@@ -3,7 +3,7 @@ package org.osrs.api.constants;
 public class WidgetData {
 
 	public static final int[] MINIMAP = new int[]{548, 8};
-	public static final int[] RESIZEMODE_MINIMAP = new int[]{164, 27};
+	public static final int[] RESIZEMODE_MINIMAP = new int[]{164, 28};
 	
 	public static final int[] INVENTORY_ITEM_CONTAINER = new int[]{149, 0};
 	public static final int[] INVENTORY_INTERFACE = new int[]{164, 67};

@@ -41,13 +41,46 @@ public class ByteBuffer extends Node implements org.osrs.api.wrappers.ByteBuffer
 	@BGetter
 	@Override
 	public byte[] bytes(){return bytes;}
+
+	@BFunction
+	@Override
+	public void mockupWrite(int a, int b){
+		//change invoke to proper packet buffer method call
+		System.out.println(""+a);
+	}
 	
 	/**
 	 * Do not enable tracking for all methods; it will guarentee 
 	 * a crash after a minute or so. Just enable what you need
 	 * for the packet you want to track.
 	 */
-/*
+	@BMethod(name="writeByte")
+	public void _writeByte(int a, int b){}
+	@BDetour
+	public void writeByte(int a, int b){
+		if(bufferTracker!=null){
+			bufferTracker.writeData(a);
+		}
+		_writeByte(a, b);
+	}
+	@BMethod(name="writeLEShortA")
+	public void _writeLEShortA(int a, int b){}
+	@BDetour
+	public void writeLEShortA(int a, int b){
+		if(bufferTracker!=null){
+			bufferTracker.writeData(a);
+		}
+		_writeLEShortA(a, b);
+	}
+	@BMethod(name="writeLEShort")
+	public void _writeLEShort(int a, byte b){}
+	@BDetour
+	public void writeLEShort(int a, byte b){
+		if(bufferTracker!=null){
+			bufferTracker.writeData(a);
+		}
+		_writeLEShort(a, b);
+	}
 	@BMethod(name="writeShort")
 	public void _writeShort(int a, byte b){}
 	@BDetour
@@ -57,6 +90,7 @@ public class ByteBuffer extends Node implements org.osrs.api.wrappers.ByteBuffer
 		}
 		_writeShort(a, b);
 	}
+/*
 	@BMethod(name="writeInt")
 	public void _writeInt(int a, byte b){}
 	@BDetour
@@ -65,15 +99,6 @@ public class ByteBuffer extends Node implements org.osrs.api.wrappers.ByteBuffer
 			bufferTracker.writeData(a);
 		}
 		_writeInt(a, b);
-	}
-	@BMethod(name="writeByte")
-	public void _writeByte(int a, int b){}
-	@BDetour
-	public void writeByte(int a, int b){
-		if(bufferTracker!=null){
-			bufferTracker.writeData(a);
-		}
-		_writeByte(a, b);
 	}
 
 	@BMethod(name="write40")
@@ -175,15 +200,6 @@ public class ByteBuffer extends Node implements org.osrs.api.wrappers.ByteBuffer
 		}
 		_writeNegatedByte(a, b);
 	}
-	@BMethod(name="writeLEShort")
-	public void _writeLEShort(int a, byte b){}
-	@BDetour
-	public void writeLEShort(int a, byte b){
-		if(bufferTracker!=null){
-			bufferTracker.writeData(a);
-		}
-		_writeLEShort(a, b);
-	}
 	@BMethod(name="writeShortA")
 	public void _writeShortA(int a, int b){}
 	@BDetour
@@ -246,15 +262,6 @@ public class ByteBuffer extends Node implements org.osrs.api.wrappers.ByteBuffer
 			bufferTracker.writeData(a);
 		}
 		_writeTriByte(a, b);
-	}
-	@BMethod(name="writeLEShortA")
-	public void _writeLEShortA(int a, int b){}
-	@BDetour
-	public void writeLEShortA(int a, int b){
-		if(bufferTracker!=null){
-			bufferTracker.writeData(a);
-		}
-		_writeLEShortA(a, b);
 	}
 	@BMethod(name="writeSizeShort")
 	public void _writeSizeShort(int a, int b){}

@@ -9,4 +9,5 @@ public interface ByteBuffer extends Node{
 	public byte[] bytes();
 	public void initTracker();
 	public BufferTracker getTracker();
+	void mockupWrite(int a, int b);
 }

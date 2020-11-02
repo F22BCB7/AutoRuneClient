@@ -14,6 +14,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -43,6 +44,7 @@ public class Modscript {
 	public ArrayList<ClassHook> classHooks = new ArrayList<ClassHook>();
 	public ArrayList<FieldHook> staticFields = new ArrayList<FieldHook>();
 	public ArrayList<MethodHook> staticMethods = new ArrayList<MethodHook>();
+	public HashMap<String, String[]> packetMethodOrder = new HashMap<String, String[]>();
 	public int injectedClasses = 0;
 	public int injectedGetters = 0;
 	public Modscript(){
@@ -156,6 +158,12 @@ public class Modscript {
 						System.exit(0);
 					}
 					System.out.println("Loading modscript for client r"+revisionData);
+				}
+				else if (currLine.contains("packetorder")) {
+					String name = currLine.substring(currLine.indexOf(":")+1, currLine.indexOf("}"));
+					String methodOrder = currLine.substring(currLine.indexOf("[")+1, currLine.indexOf("]"));
+					String[] methodLineup = methodOrder.split(", ");
+					packetMethodOrder.put(name, methodLineup);
 				}
 			}
 			System.out.println("Loaded modscript : r"+revision);
@@ -817,9 +825,11 @@ public class Modscript {
 			org.osrs.injection.transforms.ActorModels actorModelListener = new org.osrs.injection.transforms.ActorModels();
 			org.osrs.injection.transforms.PacketListener packetListener = new org.osrs.injection.transforms.PacketListener();
 			org.osrs.injection.transforms.ReflectionCheckListener reflectionListener = new org.osrs.injection.transforms.ReflectionCheckListener();
+			org.osrs.injection.transforms.MinimapWalkCreation minimapWalkCreation = new org.osrs.injection.transforms.MinimapWalkCreation();
 			for(ClassNode cn : classNodes){
 				mouseWheelListener.injectClass(cn);
 				keyListener.injectClass(cn);
+				minimapWalkCreation.injectClass(cn, packetMethodOrder.get("OUTGOING_PACKET_MINIMAP_WALK"));
 				actorModelListener.injectClass(cn, resolver.getObfuscatedClassName("Model"), resolver.getFieldHook("Client", "clientInstance", true));
 				itemDefListener.injectClass(cn, resolver.getObfuscatedClassName("ItemDefinition"), resolver.getFieldHook("Client", "clientInstance", true));
 				objectDefListener.injectClass(cn, resolver.getObfuscatedClassName("ObjectDefinition"), resolver.getFieldHook("Client", "clientInstance", true));

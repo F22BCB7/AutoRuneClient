@@ -46,16 +46,23 @@ public class RenderableNode extends EntityNode implements org.osrs.api.wrappers.
 	@BDetour
 	public org.osrs.api.wrappers.Model getModel(int a){
 		org.osrs.api.wrappers.Model model = _getModel(a);
-		if(model!=null){
-			if(tempCachedModel!=null)
-				tempCachedModel.updateModel(model);
-			else
-				tempCachedModel = new RSModel(Data.clientContexts.get(Client.clientInstance), model);
+		if(!Client.disableRendering || ignoreDisableRendering){
+			if(model!=null){
+				if(tempCachedModel!=null)
+					tempCachedModel.updateModel(model);
+				else
+					tempCachedModel = new RSModel(Data.clientContexts.get(Client.clientInstance), model);
+			}
+			else{
+				this.tempCachedModel=null;
+			}
+			return model;
 		}
-		else{
-			this.tempCachedModel=null;
+		try {
+			return model.getClass().newInstance();
+		} catch (Exception e) {
+			return null;
 		}
-		return model;
 	}
 	@BFunction
 	@Override

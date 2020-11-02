@@ -6,11 +6,35 @@ import org.osrs.injection.bytescript.BField;
 import org.osrs.injection.bytescript.BMethod;
 import org.osrs.injection.bytescript.BGetter;
 import org.osrs.injection.bytescript.BVar;
+import org.osrs.util.Data;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @BClass(name="Region")
 public class Region implements org.osrs.api.wrappers.Region{
+
+
+	@BMethod(name="drawRegion")
+	public void _drawRegion(int a, int b, int c, int d, int e, int f){}
+	@BDetour
+	public void drawRegion(int a, int b, int c, int d, int e, int f){
+		if(!Client.disableRendering){
+			_drawRegion(a, b, c, d, e, f);
+		}
+	}
+	@BMethod(name="processRegionClick")
+	public void _processRegionClick(int a, int b, int c, boolean d){}
+	@BDetour
+	public void processRegionClick(int a, int b, int c, boolean d){
+		if(Client.clientInstance.overridingProcessAction()){//Bot forcing args
+			//System.out.println("[processRegionClick] Ignoring region click : "+a+":"+b+":"+c+":"+d);
+		}
+		else{
+			//System.out.println("[processRegionClick] "+a+" : "+b+" : "+c+" : "+d);
+			_processRegionClick(a, b, c, d);
+		}
+	}
 
 	@BField
 	public int maxPlane;

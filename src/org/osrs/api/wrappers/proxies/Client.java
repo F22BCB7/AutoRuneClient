@@ -72,6 +72,26 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
         }
 	 * @param a
 	 */
+	
+	@BFunction
+	@Override
+	public void writeWalkTileMinimap(org.osrs.api.wrappers.ByteBuffer buffer, int tileX, int tileY, int relativeScreenX, int relativeScreenY) {
+		buffer.mockupWrite(18, -1);
+		buffer.mockupWrite(tileX, -1);
+		buffer.mockupWrite(0, -1);
+		buffer.mockupWrite(tileY, -1);
+		buffer.mockupWrite(relativeScreenX, -1);
+		buffer.mockupWrite(relativeScreenY, -1);
+		buffer.mockupWrite(Client.mapRotation, -1);
+		buffer.mockupWrite(57, -1);
+		buffer.mockupWrite(0, -1);
+		buffer.mockupWrite(0, -1);
+		buffer.mockupWrite(89, -1);
+		buffer.mockupWrite(Client.localPlayer.x(), -1);
+		buffer.mockupWrite(Client.localPlayer.y(), -1);
+		buffer.mockupWrite(63, -1);
+	}
+	
 	@BMethod(name="doCycle")
 	public void _doCycle(int a){}
 	@BDetour
@@ -539,7 +559,6 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 			f = clientInstance.getSubDoActionArgF();
 			g = clientInstance.getSubDoActionArgG();
 			h = clientInstance.getSubDoActionArgH();
-			clientInstance.turnOffProcessActionOverride();
 		}
 		else{//Legit input and lets log the args
 			//System.out.println("[processAction] "+a+", "+b+", "+c+", "+d+", "+e+", "+f+", "+g+", "+h+", "+i);
@@ -549,6 +568,7 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 		}
 		//clientInstance.addSessionAction(new MenuAction(a, b, c, d, e, f, g, h));//tracking client actions+clicks for analysis
 		_processAction(a, b, c, d, e, f, g, h, i);//and allow the original processAction to execute
+		clientInstance.turnOffProcessActionOverride();
 	}
 	@BFunction
 	@Override
@@ -757,19 +777,20 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	 * createOutgoingPacket mod
 	 -------------------------------------------------------*/
 	@BMethod(name="createOutgoingPacket")
-	public static org.osrs.api.wrappers.OutgoingPacket _createOutgoingPacket(org.osrs.api.wrappers.OutgoingPacketMeta a, org.osrs.api.wrappers.ISAACCipher b, int c){
+	public static org.osrs.api.wrappers.OutgoingPacket _createOutgoingPacket(org.osrs.api.wrappers.OutgoingPacketMeta a, org.osrs.api.wrappers.ISAACCipher b, byte c){
 		return null;
 	}
 	@BDetour
-	public static org.osrs.api.wrappers.OutgoingPacket createOutgoingPacket(org.osrs.api.wrappers.OutgoingPacketMeta a, org.osrs.api.wrappers.ISAACCipher b, int c){
+	public static org.osrs.api.wrappers.OutgoingPacket createOutgoingPacket(org.osrs.api.wrappers.OutgoingPacketMeta a, org.osrs.api.wrappers.ISAACCipher b, byte c){
 		//System.out.println(a.id());
 		org.osrs.api.wrappers.OutgoingPacket packet = _createOutgoingPacket(a, b, c);
-		packet.buffer().initTracker();
+		if(a.id()==76)//minimap walk
+			packet.buffer().initTracker();
 		return packet;
 	}
 	@BFunction
 	@Override
-	public org.osrs.api.wrappers.OutgoingPacket invokeCreateOutgoingPacket(org.osrs.api.wrappers.OutgoingPacketMeta a, org.osrs.api.wrappers.ISAACCipher b, int c){
+	public org.osrs.api.wrappers.OutgoingPacket invokeCreateOutgoingPacket(org.osrs.api.wrappers.OutgoingPacketMeta a, org.osrs.api.wrappers.ISAACCipher b, byte c){
 		return createOutgoingPacket(a, b, c);
 	}
 	//-------------------------------------------------------
@@ -3024,11 +3045,21 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	@BGetter
 	@Override
 	public int destinationX(){return destinationX;}
+	@BFunction
+	@Override
+	public void setDestinationX(int destX){
+		destinationX = destX;
+	}
 	@BField
 	public static int destinationY;
 	@BGetter
 	@Override
 	public int destinationY(){return destinationY;}
+	@BFunction
+	@Override
+	public void setDestinationY(int destY){
+		destinationY = destY;
+	}
 	@BField
 	public static org.osrs.api.wrappers.Archive regionArchive;
 	@BGetter

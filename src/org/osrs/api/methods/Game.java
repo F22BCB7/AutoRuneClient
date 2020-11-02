@@ -1,8 +1,15 @@
 package org.osrs.api.methods;
 
+import java.applet.Applet;
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.osrs.api.constants.ActionOpcodes;
+import org.osrs.api.objects.RSPlayer;
+import org.osrs.api.objects.RSTile;
 import org.osrs.api.wrappers.*;
 import org.osrs.injection.wrappers.KeyListener;
 import org.osrs.injection.wrappers.MouseWheelListener;
@@ -14,7 +21,80 @@ public class Game extends MethodDefinition{
 	public Client getClient(){
 		return (Client)methods.botInstance;
 	}
-	
+	/**
+	 * Sends a walk here click and overrides tile selected
+	 * to desired tile
+	 * @param tile
+	 */
+	public void walkTileViewport(RSTile tile){
+		walkTileViewport(tile.getLocalX(methods), tile.getLocalY(methods));
+	}
+	/**
+	 * Sends a walk here click and overrides tile selected
+	 * to desired tile
+	 * @param tile
+	 */
+	public void walkTileViewport(int localX, int localY){
+		methods.game.setSelectedRegionTile(localX, localY);
+		methods.game.setViewportWalking(true);
+		doClick(0, 0, ActionOpcodes.WALK_HERE, 0, "Walk here", "");
+	}
+	/**
+	 * Sends a cancel click, constructs a packet from scratch,
+	 * and sends packet for minimap walking to desired tile.
+	 * @param tile
+	 */
+	public void walkTileMinimap(RSTile tile){
+		walkTileMinimap(tile.getX(), tile.getY());
+	}
+	/**
+	 * Sends a cancel click, constructs a packet from scratch,
+	 * and sends packet for minimap walking to desired tile.
+	 * @param tileX
+	 * @param tileY
+	 */
+	public void walkTileMinimap(int tileX, int tileY){
+		doClick(0, 0, ActionOpcodes.CANCEL, 0, "Cancel", "");
+		
+		OutgoingPacket packet = createOutgoingPacket(getClient().OUTGOING_PACKET_MINIMAP_WALK(), getClient().gameConnection().cipher());
+		
+		RSPlayer p = methods.players.getLocalPlayer();
+		if(p==null)return;
+		RSTile center = p.getLocation();
+		double x = tileX - methods.game.getMapBaseX();
+		double y = tileY - methods.game.getMapBaseY();
+		int regionOffsetX = (int) (x * 4 + 2 - (((center.getX() - methods.game.getMapBaseX())+0.5D)*128) / 32);
+		int regionOffsetY = (int) (y * 4 + 2 - (((center.getY() - methods.game.getMapBaseY())+0.5D)*128) / 32);
+		int angle = methods.game.getMapRotation() & 0x7FF;
+		int angleSine = Calculations.SIN_TABLE[angle];
+		int angleCosine = Calculations.COS_TABLE[angle];
+		int localPointX = (regionOffsetY * angleSine + regionOffsetX * angleCosine) >> 16;
+		int localPointY = (regionOffsetY * angleCosine - regionOffsetX * angleSine) >> 16;
+		
+		getClient().writeWalkTileMinimap(packet.buffer(), tileX, tileY, localPointX, localPointY);
+		
+		getClient().gameConnection().sendPacket(packet, (byte) methods.getPredicate("PacketContext", "sendPacket", "(L*;?)V", false));
+
+		getClient().setDestinationX((int)x * (int)methods.getSetterMultiplier("", "destinationX", true));
+		getClient().setDestinationY((int)y * (int)methods.getSetterMultiplier("", "destinationY", true));
+	}
+	/**
+	 * Does the same thing as a doAction bot, but sends a click at 0,0
+	 * and overrides the processAction args to these params.
+	 * @param arg1
+	 * @param arg2
+	 * @param arg3
+	 * @param arg4
+	 * @param action
+	 * @param option
+	 */
+	public void doClick(int arg1, int arg2, int arg3, int arg4, String action, String option){
+		Point loc = methods.mouse.getLocation();
+		if(loc.x!=0 || loc.y!=0)
+			methods.game.getMouseListener().sendEvent(new MouseEvent(getEventTarget(), MouseEvent.MOUSE_MOVED, System.currentTimeMillis(), 0, 0, 0, 0, false, MouseEvent.NOBUTTON));
+		methods.game.overrideProcessAction(arg1, arg2, arg3, arg4, action, option, methods.game.getMouseX(), methods.game.getMouseY());
+		methods.mouse.click();
+	}
 	public boolean getDisableRenderState(){
 		Client client = getClient();
 		if(client!=null){
@@ -151,7 +231,7 @@ public class Game extends MethodDefinition{
 	public OutgoingPacket createOutgoingPacket(OutgoingPacketMeta a, ISAACCipher b){
 		Client client = getClient();
 		if(client!=null){
-			return client.invokeCreateOutgoingPacket(a, b, (int) methods.getPredicate("", "createOutgoingPacket", "(L*;L*;?)L*;", true));
+			return client.invokeCreateOutgoingPacket(a, b, (byte) methods.getPredicate("", "createOutgoingPacket", "(L*;L*;?)L*;", true));
 		}
 		return null;
 	}
@@ -1864,6 +1944,14 @@ public class Game extends MethodDefinition{
 		Client client = getClient();
 		if(client!=null){
 			client.setPassword(password);
+		}
+	}
+	public Component getEventTarget(){
+		try{
+			return ((Applet)methods.botInstance).getComponent(0);
+		}
+		catch(Exception e){
+			return (Component)methods.botInstance;
 		}
 	}
 }

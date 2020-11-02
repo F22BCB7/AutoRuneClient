@@ -63,7 +63,7 @@ public class PacketContext implements org.osrs.api.wrappers.PacketContext{
 	@BSetterDetour
 	public void set_currentIncomingPacket(org.osrs.api.wrappers.IncomingPacketMeta meta){
 		if(meta!=null){
-			packetBuffer.initTracker();
+			//packetBuffer.initTracker();
 		}
 		else{
 			ScriptDef script = Data.currentScripts.get(Client.clientInstance);
@@ -110,10 +110,10 @@ public class PacketContext implements org.osrs.api.wrappers.PacketContext{
 	@Override
 	public org.osrs.api.wrappers.IncomingPacketMeta thirdIncomingPacket(){return thirdIncomingPacket;}
 	@BMethod(name="sendPacket")
-	public void _sendPacket(org.osrs.api.wrappers.OutgoingPacket packet, int a){}
+	public void _sendPacket(org.osrs.api.wrappers.OutgoingPacket packet, byte a){}
 	@BDetour
 	@Override
-	public void sendPacket(org.osrs.api.wrappers.OutgoingPacket packet, int a){
+	public void sendPacket(org.osrs.api.wrappers.OutgoingPacket packet, byte a){
 		Object scriptDef = Data.currentScripts.get(Client.clientInstance);
 		if(scriptDef!=null){
 			((ScriptDef)scriptDef).recievePacketData(packet);
