@@ -24,17 +24,12 @@ public class ScriptLoader extends java.lang.ClassLoader{
     private String directoryPath = "";
     public ScriptLoader(File file) {
     	super(ScriptLoader.class.getClassLoader());
-    	System.out.println("File name : "+file.getName());
     	fileName = file.getName();
-    	System.out.println("Path : "+file.getPath());
-    	System.out.println("Absolute Path : "+file.getAbsolutePath());
 		directoryPath = file.getAbsolutePath().substring(0, file.getPath().lastIndexOf(File.separator)+1);
-		System.out.println("Directory path : "+directoryPath);
     	if(fileName.endsWith(".class")){
     		File directory = new File(directoryPath);
     		for(File f : directory.listFiles()){
     	    	if(f.getName().endsWith(".class")){
-	    			System.out.println(f.getName());
 					try {
 						FileInputStream stream = new FileInputStream(f);
 						byte[] bytes = new byte[stream.available()];

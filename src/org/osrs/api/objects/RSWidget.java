@@ -39,6 +39,20 @@ public class RSWidget extends MethodDefinition{
 	public Point getCenterPoint(){
 		return new Point(this.getAbsoluteX()+(this.getWidth()/2), this.getAbsoluteY()+(this.getHeight()/2));
 	}
+	public boolean isDisplayed(){
+		Widget w = getInternal();
+		if(w!=null){
+			return w.displayCycle()+3>=methods.game.getClient().gameCycle();
+		}
+		return false;
+	}
+	public boolean isVisible(){
+		Widget w = getInternal();
+		if(w!=null){
+			return w.visibleCycle()+3>=methods.game.getClient().widgetVisibleCycle();
+		}
+		return false;
+	}
 	public RSWidget getChild(int ind){
 		Widget iface = getInternal();
 		if(iface==null)

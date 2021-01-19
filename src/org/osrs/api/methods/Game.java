@@ -73,7 +73,7 @@ public class Game extends MethodDefinition{
 		
 		getClient().writeWalkTileMinimap(packet.buffer(), tileX, tileY, localPointX, localPointY);
 		
-		getClient().gameConnection().sendPacket(packet, (byte) methods.getPredicate("PacketContext", "sendPacket", "(L*;?)V", false));
+		getClient().gameConnection().sendPacket(packet, (int) methods.getPredicate("PacketContext", "sendPacket", "(L*;?)V", false));
 
 		getClient().setDestinationX((int)x * (int)methods.getSetterMultiplier("", "destinationX", true));
 		getClient().setDestinationY((int)y * (int)methods.getSetterMultiplier("", "destinationY", true));
@@ -140,7 +140,7 @@ public class Game extends MethodDefinition{
 	public void setWorld(Server server){
 		Client client = getClient();
 		if(client!=null){
-			client.invokeSetWorld(server, (byte) methods.getPredicate("", "setWorld", "(L*;?)V", true));
+			client.invokeSetWorld(server, (int) methods.getPredicate("", "setWorld", "(L*;?)V", true));
 		}
 	}
 	public void setGameState(int state){
@@ -245,7 +245,7 @@ public class Game extends MethodDefinition{
 	public boolean loadWorlds(){
 		Client client = getClient();
 		if(client!=null){
-			return client.invokeLoadWorlds((int) methods.getPredicate("", "loadWorlds", "(?)Z", true));
+			return client.invokeLoadWorlds((int)methods.getPredicate("", "loadWorlds", "(?)Z", true));
 		}
 		return false;
 	}

@@ -34,11 +34,6 @@ public class RenderableNode extends EntityNode implements org.osrs.api.wrappers.
 		}
 	}
 	
-	@BField
-	public int height;
-	@BGetter
-	@Override
-	public int height(){return height;}
 	@BVar
 	public RSModel tempCachedModel = null;
 	@BMethod(name="getModel")
@@ -74,4 +69,9 @@ public class RenderableNode extends EntityNode implements org.osrs.api.wrappers.
 	public RSModel getTempModel(){
 		return tempCachedModel;
 	}
+	@BField
+	public int height;
+	@BGetter
+	@Override
+	public int height(){return height;}
 }

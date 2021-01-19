@@ -457,7 +457,7 @@ public interface Client extends GameShell{
 	public void invokeAddChatMessage(int channel, String name, String message, String sender, int predicate);
 	public org.osrs.api.wrappers.Sprite invokeGetItemSprite(int a, int b, int c, int d, int e, boolean f, int i);
 	public int invokeGetVarp(int var, int predicate);
-	public void invokeSetWorld(Server a, byte b);
+	public void invokeSetWorld(Server a, int b);
 	public void invokeSetGameState(int a, int b);
 	public ObjectDefinition invokeGetObjectDefinition(int a, int b);
 	public AnimationSequence invokeGetAnimationSequence(int a, int b);
@@ -508,5 +508,6 @@ public interface Client extends GameShell{
 	public void writeWalkTileMinimap(org.osrs.api.wrappers.ByteBuffer buffer, int tileX, int tileY, int relativeScreenX, int relativeScreenY);
 	public void setDestinationX(int destX);
 	public void setDestinationY(int destY);
+	public int widgetVisibleCycle();
 	
 }

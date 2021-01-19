@@ -151,17 +151,20 @@ public class WidgetDebug extends ScriptDef{
 				for(RSInterface i : methods.widgets.getAll()){
 					if(i!=null){
 						DataNode n = new DataNode(""+i.index, i);
+						boolean add=false;
 						for(RSWidget ic : i.getChildren()){
-							if(ic!=null){
+							if(ic!=null && ic.isDisplayed()){
 								DataNode n2 = new DataNode(""+ic.getIndex(), ic);
 								for(RSWidget ic2 : ic.getChildren()){
 									if(ic2!=null)
 										n2.addChild(new DataNode(""+ic2.getIndex(), ic2));
 								}
+								add=true;
 								n.addChild(n2);
 							}
 						}
-						root.addChild(n);
+						if(add)
+							root.addChild(n);
 					}
 				}
 				if(root.getChildCount()<1)
@@ -187,7 +190,6 @@ public class WidgetDebug extends ScriptDef{
 						selectedInterfaceInformation.append("Scroll : "+ic.getScrollX()+", "+ic.getScrollY()+"\n");
 						Widget w = ic.getInternal();
 						if(w!=null){
-							selectedInterfaceInformation.append("Is Rendered : "+w.getIsDisplayed()+"\n");
 							selectedInterfaceInformation.append("Alpha : "+w.alpha()+"\n");
 							selectedInterfaceInformation.append("Border Thickness : "+w.borderThickness()+"\n");
 							selectedInterfaceInformation.append("Bounds Index : "+w.boundsIndex()+"\n");
@@ -204,7 +206,7 @@ public class WidgetDebug extends ScriptDef{
 							selectedInterfaceInformation.append("Disabled Media ID : "+w.disabledMediaID()+"\n");
 							selectedInterfaceInformation.append("Disabled Media Type : "+w.disabledMediaType()+"\n");
 							selectedInterfaceInformation.append("Disabled Text : "+w.disabledText()+"\n");
-							selectedInterfaceInformation.append("Display Cycle : "+w.displayCycle()+"\n");
+							selectedInterfaceInformation.append("Display Cycle : "+w.displayCycle()+" (Game Cycle : "+methods.game.getClient().gameCycle()+")\n");
 							selectedInterfaceInformation.append("Drag Dead Time : "+w.dragDeadTime()+"\n");
 							selectedInterfaceInformation.append("Drag Dead Zone : "+w.dragDeadZone()+"\n");
 							selectedInterfaceInformation.append("Dynamic Height : "+w.dynamicHeight()+"\n");
@@ -279,7 +281,7 @@ public class WidgetDebug extends ScriptDef{
 							selectedInterfaceInformation.append("No Scroll Through : "+w.noScrollThrough()+"\n");
 							selectedInterfaceInformation.append("Sprite IDs : "+Arrays.toString(w.spriteIDs())+"\n");
 							selectedInterfaceInformation.append("Table Actions : "+Arrays.toString(w.tableActions())+"\n");
-							selectedInterfaceInformation.append("Visible Cycle : "+w.visibleCycle()+"\n");
+							selectedInterfaceInformation.append("Visible Cycle : "+w.visibleCycle()+" (WidgetCycle : "+methods.game.getClient().widgetVisibleCycle()+")\n");
 							selectedInterfaceInformation.append("Widget Varps : "+Arrays.toString(w.widgetVarps())+"\n");
 							selectedInterfaceInformation.append("X Sprites : "+Arrays.toString(w.xSprites())+"\n");
 							selectedInterfaceInformation.append("Y Sprites : "+Arrays.toString(w.ySprites())+"\n");
@@ -400,17 +402,20 @@ public class WidgetDebug extends ScriptDef{
 				for(RSInterface i : methods.widgets.getAll()){
 					if(i!=null){
 						DataNode n = new DataNode(""+i.index, i);
+						boolean add=false;
 						for(RSWidget ic : i.getChildren()){
-							if(ic!=null){
+							if(ic!=null && ic.isDisplayed()){
 								DataNode n2 = new DataNode(""+ic.getIndex(), ic);
 								for(RSWidget ic2 : ic.getChildren()){
 									if(ic2!=null)
 										n2.addChild(new DataNode(""+ic2.getIndex(), ic2));
 								}
+								add=true;
 								n.addChild(n2);
 							}
 						}
-						root.addChild(n);
+						if(add)
+							root.addChild(n);
 					}
 				}
 				treeModel.reload(root);

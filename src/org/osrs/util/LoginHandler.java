@@ -35,9 +35,13 @@ public class LoginHandler extends ScriptDef{
 	public void run() {
 		handlerThread=this;
 		log("[LoginHandler] Started.");
+		int count=0;
 		while(true){
+			if(count<200)
+			System.out.println(count+" : rand:"+random(200, 10000));
+			count++;
 			if(!letHandlerRun){
-				sleep(5000);
+				sleep(100);
 				continue;
 			}
 			ScriptDef script = Data.currentScripts.get(methods.game.getClient());

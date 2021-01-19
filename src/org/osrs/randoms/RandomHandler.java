@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.osrs.api.constants.ActionOpcodes;
 import org.osrs.api.methods.MethodContext;
 import org.osrs.api.objects.RSNpc;
 import org.osrs.api.objects.RSPlayer;
@@ -44,55 +45,42 @@ public class RandomHandler extends Thread{
 	public void run() {
 		System.out.println("Random Event Handler Started.");
 		while(Data.clientInstances.contains(client)){
-			RSPlayer local = methods.players.getLocalPlayer();
-			if(local!=null){
-				for(RSNpc npc : methods.npcs.getAll()){
-					if(npc==null)
-						continue;
-					if(!RANDOM_NPCS.contains(npc.getID()))
-						continue;
-					int id = npc.accessor.get().interactingID();
-					if(id==-1)
-						continue;
-					id -= 32768;
-					Player[] players = methods.game.getClient().players();
-					if(players!=null && players.length>=2000){
-						Player pl = players[id];
-						if(pl!=null){
-							if(pl.equals(local.accessor.get())){
-								System.out.println(sdf.format(new Timestamp(System.currentTimeMillis())) + " Random Detected : "+npc.getID()+":"+npc.getName());
-								randomDetected=true;
-								ScriptDef script = Data.currentScripts.get(client);
-								boolean flag = false;
-								if(script!=null){
-									flag=!script.isPaused;
-									if(flag)
-										script.pause();
-								}
-								try {
-									sleep(methods.calculations.random(10000));
-									//npc.hover();
-									methods.mouse.rightClick();
-									sleep(methods.calculations.random(100, 1000));
-									if(methods.menu.isOpen())
-										methods.game.setMenuOpen(false);
-									methods.game.overrideProcessAction(0, 0, 13, npc.calculateMenuTag(), "Dismiss", "", methods.game.getMouseX(), methods.game.getMouseY());
-									sleep(methods.calculations.random(100, 300));
-									methods.mouse.click();
-									for(int i=0;i<20;++i){
-										try {
-											sleep(methods.calculations.random(100, 300));
-										} catch(Exception e) {
+			if(isEnabled()){
+				RSPlayer local = methods.players.getLocalPlayer();
+				if(local!=null){
+					for(RSNpc npc : methods.npcs.getAll()){
+						if(npc==null)
+							continue;
+						if(!RANDOM_NPCS.contains(npc.getID()))
+							continue;
+						int id = npc.accessor.get().interactingID();
+						if(id==-1)
+							continue;
+						id -= 32768;
+						Player[] players = methods.game.getClient().players();
+						if(players!=null && players.length>=2000){
+							Player pl = players[id];
+							if(pl!=null){
+								if(pl.equals(local.accessor.get())){
+									try{
+										if(methods.calculations.random(1000)<30){
+											//randomly ignore the random event
+											System.out.println("Random event detected! Randomly ignoring for 30sec...");
+											sleep(30000);
 										}
-										if(local.getAnimationID()!=-1)
-											i=0;
+										else{
+											int reaction = methods.calculations.random(20000);
+											System.out.println(sdf.format(new Timestamp(System.currentTimeMillis())) + " Random Detected : "+npc.getID()+":"+npc.getName()+" Reacting in : "+reaction);
+											randomDetected=true;
+											sleep(reaction);
+											methods.game.doClick(0, 0, ActionOpcodes.NPC_ACTION_4, npc.calculateMenuTag(), "Dismiss", "");
+											sleep(5000);
+											randomDetected=false;
+										}
 									}
-								} catch(Exception e) {
-								}
-								randomDetected=false;
-								if(script!=null){
-									if(flag)
-										script.unpause();
+									catch(Exception e){
+										
+									}
 								}
 							}
 						}

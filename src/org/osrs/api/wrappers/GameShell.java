@@ -17,6 +17,6 @@ public interface GameShell{
 	public void focusGained(FocusEvent event);
 	public void focusLost(FocusEvent event);
 	public void requestShutdown(String s, byte b);
-	public void processGraphics(int a);
+	public void processGraphics(byte a);
 	public void clearBackround(int a);
 }

@@ -8,6 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +39,8 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 
         os = random.nextInt(4) + 1;
         is64Bit = random.nextBoolean();
-
+	
+		versionType=0;
         switch (os) {
             case 1:
                 versionType = random.nextInt(11) + 1;
@@ -96,30 +100,6 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	public void _doCycle(int a){}
 	@BDetour
 	public void doCycle(int a){
-		HashMap<org.osrs.api.wrappers.Widget, Integer> vticks = new HashMap<org.osrs.api.wrappers.Widget, Integer>();
-		org.osrs.api.wrappers.Widget[][] widgets = Client.clientInstance.widgets();
-		if(widgets!=null){
-			for(int k=0;k<widgets.length;++k){
-				org.osrs.api.wrappers.Widget[] widgets2 = widgets[k];
-				if(widgets2!=null){
-					for(int k2=0;k2<widgets2.length;++k2){
-						org.osrs.api.wrappers.Widget widget = widgets2[k2];
-						if(widget!=null){
-							vticks.put(widget, widget.visibleCycle());
-							org.osrs.api.wrappers.Widget[] widgets3 = widget.children();
-							if(widgets3!=null){
-								for(int k3=0;k3<widgets3.length;++k3){
-									org.osrs.api.wrappers.Widget widgetb = widgets3[k3];
-									if(widgetb!=null){
-										vticks.put(widgetb, widgetb.visibleCycle());
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
 		_doCycle(a);
 		if(widgets!=null){
 			for(int k=0;k<widgets.length;++k){
@@ -128,15 +108,13 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 					for(int k2=0;k2<widgets2.length;++k2){
 						org.osrs.api.wrappers.Widget widget = widgets2[k2];
 						if(widget!=null){
-							int tick = vticks.containsKey(widget)?vticks.get(widget):-1;
-							widget.setIsVisible(tick!=widget.visibleCycle() && tick!=-1);
+							widget.setVisible(widget.visibleCycle()+1>=widgetVisibleCycle);
 							org.osrs.api.wrappers.Widget[] widgets3 = widget.children();
 							if(widgets3!=null){
 								for(int k3=0;k3<widgets3.length;++k3){
 									org.osrs.api.wrappers.Widget widgetb = widgets3[k3];
 									if(widgetb!=null){
-										tick = vticks.containsKey(widgetb)?vticks.get(widgetb):-1;
-										widgetb.setIsVisible(tick!=widgetb.visibleCycle() && tick!=-1);
+										widgetb.setVisible(widgetb.visibleCycle()+1>=widgetVisibleCycle);
 									}
 								}
 							}
@@ -197,6 +175,38 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	//-------------------------------------------------------
 
 	/**------------------------------------------------------
+	 * Reflection check bypass
+	 -------------------------------------------------------*/
+	@BMethod(name="findClass")
+	public static Class<?> _findClass(String a, int b){return null;}
+	@BDetour
+	public static Class<?> findClass(String a, int b){
+	      return a.equals("B")?Byte.TYPE:
+	    	  	(a.equals("I")?Integer.TYPE:
+	    		(a.equals("S")?Short.TYPE:
+	    		(a.equals("J")?Long.TYPE:
+	    		(a.equals("Z")?Boolean.TYPE:
+	    		(a.equals("F")?Float.TYPE:
+	    		(a.equals("D")?Double.TYPE:
+	    		(a.equals("C")?Character.TYPE:
+	    		(a.equals("void")?Void.TYPE:
+	    			fakeLoadClass(a)))))))));
+	}
+	@BVar 
+	public static URLClassLoader bypassClassloader;
+	@BFunction
+	public static Class<?> fakeLoadClass(String a){
+		try{
+			if(bypassClassloader==null)
+				bypassClassloader=new URLClassLoader(new URL[]{new File("runescape.jar").toURL()});
+			return bypassClassloader.loadClass(a);
+		}
+		catch(Exception e){}
+		return null;
+	}
+	//-------------------------------------------------------
+	
+	/**------------------------------------------------------
 	 * gcStat mod
 	 -------------------------------------------------------*/
 	@BMethod(name="getGCStats")
@@ -214,10 +224,10 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	/**------------------------------------------------------
 	 * randomDat mod
 	 -------------------------------------------------------*/
-	@BMethod(name="doLoggedOutCycle")
-	public void _doLoggedOutCycle(int a){}
+	@BMethod(name="loggedOutTick")
+	public void _loggedOutTick(int a){}
 	@BDetour
-	public void doLoggedOutCycle(int a){
+	public void loggedOutTick(int a){
 		randomDatData = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 		File directory = new File(System.getProperty("user.home") + "\\osrs\\profiles\\");
 		if(!directory.exists())
@@ -233,7 +243,7 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 				randomDatData = new byte[]{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 			}
 		}
-		_doLoggedOutCycle(a);
+		_loggedOutTick(a);
 	}
 	@BMethod(name="writeToRandomDat")
 	public static void _writeToRandomDat(ByteBuffer buffer, int a, short s){}
@@ -419,15 +429,15 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	 * setWorld mod
 	 -------------------------------------------------------*/
 	@BMethod(name="setWorld")
-	public static void _setWorld(org.osrs.api.wrappers.Server a, byte b){}
+	public static void _setWorld(org.osrs.api.wrappers.Server a, int b){}
 	@BDetour
-	public static void setWorld(org.osrs.api.wrappers.Server a, byte b){
+	public static void setWorld(org.osrs.api.wrappers.Server a, int b){
 		//System.out.println("Server changed to : "+a.number()+" : "+a.members()+" : "+a.activity()+" : "+a.location()+" : "+a.domain()+" : "+a.population());
 		_setWorld(a, b);
 	}
 	@BFunction
 	@Override
-	public void invokeSetWorld(org.osrs.api.wrappers.Server a, byte b){
+	public void invokeSetWorld(org.osrs.api.wrappers.Server a, int b){
 		setWorld(a, b);
 	}
 	//-------------------------------------------------------
@@ -561,7 +571,7 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 			h = clientInstance.getSubDoActionArgH();
 		}
 		else{//Legit input and lets log the args
-			//System.out.println("[processAction] "+a+", "+b+", "+c+", "+d+", "+e+", "+f+", "+g+", "+h+", "+i);
+			System.out.println("[processAction] "+a+", "+b+", "+c+", "+d+", "+e+", "+f+", "+g+", "+h+", "+i);
 		}
 		if(Data.multiboxHandler!=null){//forward to multiboxed accounts if enabled
 			//Data.multiboxHandler.subActions(clientInstance, a, b, c, d, e, f, g, h);
@@ -829,6 +839,24 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	}
 	//-------------------------------------------------------
 
+	/**------------------------------------------------------
+	 * mouseIdleTick mod
+	 -------------------------------------------------------*/
+	@BField
+	public static int mouseIdleTicks;
+	@BGetter
+	@Override
+	public int mouseIdleTicks(){return mouseIdleTicks;}
+	@BGetterDetour
+	public static int get_mouseIdleTicks() {
+		return 0;
+	}
+	@BSetterDetour
+	public static void set_mouseIdleTicks(int a) {
+		mouseIdleTicks = a;
+	}
+	//-------------------------------------------------------
+	
 	/**------------------------------------------------------
 	 * redrawMode mod
 	 -------------------------------------------------------*/
@@ -2766,6 +2794,11 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	@Override
 	public int gameCycle(){return gameCycle;}
 	@BField
+	public static int widgetVisibleCycle;
+	@BGetter
+	@Override
+	public int widgetVisibleCycle(){return widgetVisibleCycle;}
+	@BField
 	public static int hintArrowHeight;
 	@BGetter
 	@Override
@@ -2850,11 +2883,6 @@ public class Client extends GameShell implements org.osrs.api.wrappers.Client{
 	@BGetter
 	@Override
 	public int pendingMouseClickX(){return pendingMouseClickX;}
-	@BField
-	public static int mouseIdleTicks;
-	@BGetter
-	@Override
-	public int mouseIdleTicks(){return mouseIdleTicks;}
 	@BField
 	public static long lastMouseClickTime;
 	@BGetter

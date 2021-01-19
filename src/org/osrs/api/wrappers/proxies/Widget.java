@@ -12,32 +12,14 @@ import java.util.Map;
 
 @BClass(name="Widget")
 public class Widget extends Node implements org.osrs.api.wrappers.Widget{
-
 	@BVar
-	public boolean isDisplayed=false;
+	public boolean isVisible;
 	@BFunction
 	@Override
-	public boolean getIsDisplayed(){
-		return isDisplayed;
-	}
+	public boolean isVisible(){return isVisible;}
 	@BFunction
 	@Override
-	public void setIsDisplayed(boolean a){
-		isDisplayed=a;
-	}
-	@BVar
-	public boolean isVisible=false;
-	@BFunction
-	@Override
-	public boolean getIsVisible(){
-		return isVisible;
-	}
-	@BFunction
-	@Override
-	public void setIsVisible(boolean a){
-		isVisible=a;
-	}
-	
+	public void setVisible(boolean flag){isVisible=flag;}
 	@BField
 	public boolean hasScript;
 	@BGetter

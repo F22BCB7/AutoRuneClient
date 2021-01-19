@@ -49,25 +49,26 @@ public class Boot {
 						classNodes.add(classNode);
 						if(classNode.name.equals("client")){
 							for (MethodNode mn : classNode.methods) {
-								if (mn.name.equals("init")) {List<AbstractInsnNode> pattern = Assembly.find(mn,
+								if (mn.name.equals("init")) {
+									List<AbstractInsnNode> pattern = Assembly.find(mn,
 										Mask.SIPUSH.operand(765),//Applet width
 										Mask.SIPUSH.operand(503),//Applet height
 										//Client version
 										//Dummy parameter
 										Mask.INVOKEVIRTUAL.distance(3)//initializeApplet
-								);
-								if (pattern != null) {
-									IntInsnNode appHeight = (IntInsnNode)pattern.get(1);
-									AbstractInsnNode clientVersion = appHeight.getNext();
-									if(clientVersion instanceof IntInsnNode){
-										Data.jarRevision = ((IntInsnNode)clientVersion).operand;
-										break;
+									);
+									if (pattern != null) {
+										IntInsnNode appHeight = (IntInsnNode)pattern.get(1);
+										AbstractInsnNode clientVersion = appHeight.getNext();
+										if(clientVersion instanceof IntInsnNode){
+											Data.jarRevision = ((IntInsnNode)clientVersion).operand;
+											break;
+										}
 									}
+									break;
 								}
-								break;
 							}
 						}
-					}
 					}
 				}
 				jar.close();

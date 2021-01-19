@@ -132,8 +132,6 @@ public interface Widget extends Node{
 	public int[][] scriptOpcodes();
 	public int[] tableActions();
 	public Widget[] children();
-	public boolean getIsDisplayed();
-	public void setIsDisplayed(boolean a);
-	public boolean getIsVisible();
-	public void setIsVisible(boolean a);
+	public boolean isVisible();
+	public void setVisible(boolean flag);
 }

@@ -92,60 +92,25 @@ public class GameShell extends Applet implements org.osrs.api.wrappers.GameShell
 	public void clearBackround(int a){
 		_clearBackround(a);
 	}
-	
+
+	@BMethod(name="isAppletFramed")
+	public boolean _isAppletFramed(int a){return false;}
+	@BDetour
+	public boolean isAppletFramed(int a){
+		//_isAppletFramed(a);
+		return true;
+	}
 	@BMethod(name="processGraphics")
-	public void _processGraphics(int a){}
+	public void _processGraphics(byte a){}
 	@BDetour
 	@Override
-	public void processGraphics(int a){
-		HashMap<org.osrs.api.wrappers.Widget, Integer> dticks = new HashMap<org.osrs.api.wrappers.Widget, Integer>();
-		org.osrs.api.wrappers.Widget[][] widgets = Client.clientInstance.widgets();
-		if(widgets!=null){
-			for(int k=0;k<widgets.length;++k){
-				org.osrs.api.wrappers.Widget[] widgets2 = widgets[k];
-				if(widgets2!=null){
-					for(int k2=0;k2<widgets2.length;++k2){
-						org.osrs.api.wrappers.Widget widget = widgets2[k2];
-						if(widget!=null){
-							dticks.put(widget, widget.displayCycle());
-							org.osrs.api.wrappers.Widget[] widgets3 = widget.children();
-							if(widgets3!=null){
-								for(int k3=0;k3<widgets3.length;++k3){
-									org.osrs.api.wrappers.Widget widgetb = widgets3[k3];
-									if(widgetb!=null){
-										dticks.put(widgetb, widgetb.displayCycle());
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+	public void processGraphics(byte a){
+		try{
+			_processGraphics(a);
 		}
-		_processGraphics(a);
-		if(widgets!=null){
-			for(int k=0;k<widgets.length;++k){
-				org.osrs.api.wrappers.Widget[] widgets2 = widgets[k];
-				if(widgets2!=null){
-					for(int k2=0;k2<widgets2.length;++k2){
-						org.osrs.api.wrappers.Widget widget = widgets2[k2];
-						if(widget!=null){
-							int tick = dticks.containsKey(widget)?dticks.get(widget):-1;
-							widget.setIsDisplayed(tick!=widget.displayCycle() && tick!=-1);
-							org.osrs.api.wrappers.Widget[] widgets3 = widget.children();
-							if(widgets3!=null){
-								for(int k3=0;k3<widgets3.length;++k3){
-									org.osrs.api.wrappers.Widget widgetb = widgets3[k3];
-									if(widgetb!=null){
-										tick = dticks.containsKey(widgetb)?dticks.get(widgetb):-1;
-										widgetb.setIsDisplayed(tick!=widgetb.displayCycle() && tick!=-1);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+		catch(Exception e){
+			//Stop random fucking crashes
+			e.printStackTrace();
 		}
 	}
 	/** Method hooks **/

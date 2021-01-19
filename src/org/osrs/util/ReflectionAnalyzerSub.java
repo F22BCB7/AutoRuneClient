@@ -65,6 +65,9 @@ public class ReflectionAnalyzerSub extends JPanel implements MouseListener, Mous
 			for(Class<?> cl=clazz;!cl.getName().equals("java.lang.Object");cl=cl.getSuperclass()){
 				System.out.println("Checking class : "+cl.getName());
 				for(Field f : cl.getDeclaredFields()){
+					if(Modifier.isStatic(f.getModifiers()))
+						continue;
+					System.out.println("Loading refl field : "+f.getName());
 					runtimeObjects.add(f);
 				}
 			}
@@ -119,46 +122,46 @@ public class ReflectionAnalyzerSub extends JPanel implements MouseListener, Mous
 				
 
 				for(int i=0;i<((int)((this.getSize().height-150)/15));++i){
-					if(y2-15<lastClickY && y2>lastClickY &&
-							lastClickX>20 && lastClickX<scrollbarX){
-						Color old = g.getColor();
-						g.setColor(new Color(255, 255, 0, 50));
-						g.fillRect(18, y2-16, 444, 17);
-						g.setColor(old);
-					}
-					int idx = currentItemScroll+i;
-					if(idx>=runtimeObjects.size())
-						break;
-					Object obj = runtimeObjects.get(idx);
-					if(obj instanceof Field){
-						Field f = (Field)obj;
-						if(!f.isAccessible())
-							f.setAccessible(true);
-						String refactoredField = resolver.getRefactoredFieldName(f.getDeclaringClass().getSimpleName(), f.getName(), Modifier.isStatic(f.getModifiers()));
-						Object data = f.get(parentObject);
-						Object decodedData = data;
-						if(data!=null){
-							if(data instanceof Integer){
-								Object multi=resolver.getFieldMultiplier(refactoredClass, refactoredField, Modifier.isStatic(f.getModifiers()));
-								if(multi==null)
-									multi = Data.intMultipliers.get(f.getDeclaringClass().getSimpleName()+"."+f.getName());
-								if(multi!=null)
-									decodedData = ((int)data) * ((int)multi);
-							}
-							else if(data instanceof Long){
-								Object multi=resolver.getFieldMultiplier(refactoredClass, refactoredField, Modifier.isStatic(f.getModifiers()));
-								if(multi==null)
-									multi = Data.longMultipliers.get(f.getDeclaringClass().getSimpleName()+"."+f.getName());
-								if(multi!=null)
-									decodedData = ((long)data) * ((long)multi);
-							}
-						}
-						g.drawString(("["+idx+"] ")+(refactoredField!=null?(f.getDeclaringClass().getSimpleName()+"."+refactoredField+" = "+decodedData):(f.getDeclaringClass().getSimpleName()+"."+f.getName()+" = "+data)), 20, y2);
-					}
-					else{
-						g.drawString(("["+idx+"] ")+obj, 20, y2);
-					}
 					try{
+						if(y2-15<lastClickY && y2>lastClickY &&
+								lastClickX>20 && lastClickX<scrollbarX){
+							Color old = g.getColor();
+							g.setColor(new Color(255, 255, 0, 50));
+							g.fillRect(18, y2-16, 444, 17);
+							g.setColor(old);
+						}
+						int idx = currentItemScroll+i;
+						if(idx>=runtimeObjects.size())
+							break;
+						Object obj = runtimeObjects.get(idx);
+						if(obj instanceof Field){
+							Field f = (Field)obj;
+							if(!f.isAccessible())
+								f.setAccessible(true);
+							String refactoredField = resolver.getRefactoredFieldName(f.getDeclaringClass().getSimpleName(), f.getName(), Modifier.isStatic(f.getModifiers()));
+							Object data = f.get(parentObject);
+							Object decodedData = data;
+							if(data!=null){
+								if(data instanceof Integer){
+									Object multi=resolver.getFieldMultiplier(refactoredClass, refactoredField, Modifier.isStatic(f.getModifiers()));
+									if(multi==null)
+										multi = Data.intMultipliers.get(f.getDeclaringClass().getSimpleName()+"."+f.getName());
+									if(multi!=null)
+										decodedData = ((int)data) * ((int)multi);
+								}
+								else if(data instanceof Long){
+									Object multi=resolver.getFieldMultiplier(refactoredClass, refactoredField, Modifier.isStatic(f.getModifiers()));
+									if(multi==null)
+										multi = Data.longMultipliers.get(f.getDeclaringClass().getSimpleName()+"."+f.getName());
+									if(multi!=null)
+										decodedData = ((long)data) * ((long)multi);
+								}
+							}
+							g.drawString(("["+idx+"] ")+(refactoredField!=null?(f.getDeclaringClass().getSimpleName()+"."+refactoredField+" = "+decodedData):(f.getDeclaringClass().getSimpleName()+"."+f.getName()+" = "+data)), 20, y2);
+						}
+						else{
+							g.drawString(("["+idx+"] ")+obj, 20, y2);
+						}
 						if(y2-15<currentMouseLocation.y && y2>currentMouseLocation.y &&
 								currentMouseLocation.x>20 && currentMouseLocation.x<460){
 							g.drawRect(18, y2-16, 444, 17);
